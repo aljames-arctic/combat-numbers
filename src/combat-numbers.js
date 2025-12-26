@@ -73,63 +73,11 @@ let state;
  */
 let masking;
 
-/**
- * If our current Foundry's Canvas class is using statically stored layers.
- *
- * This is a large change between Foundry versions so we depend on this for
- * how we register our CombatNumbersLayer.
- *
- * @type {boolean}
- */
-let isUsingStaticLayers = true;
-
-/**
- * Determine if we're running Foundry v0.8.x or not.
- *
- * @return {boolean}
- */
-function isV8x() {
-  return !!CONFIG?.Canvas?.layers && CONFIG?.Canvas?.layers?.background?.layerClass == null;
-}
-
-function isV9x() {
-  return !!CONFIG?.Canvas?.layers && CONFIG?.Canvas?.layers?.background?.layerClass != null;
-}
-
-/**
- * Register the Combat Numbers layer into the Canvas' static layers.
- *
- * Takes into account registering layers for 0.7.x and 0.8.x Foundry versions.
- */
 function registerStaticLayer() {
-  if (isV9x()) {
-    // For 0.9.x.
-    const layers = foundry.utils.mergeObject(CONFIG.Canvas.layers, {
-      combatNumbers: {
-        layerClass: CombatNumberLayer,
-        group: 'effects',
-      },
-    });
-    Object.defineProperty(CONFIG.Canvas, 'layers', layers);
-    return;
-  }
-
-  if (isV8x()) {
-    // For 0.8.x.
-    const layers = foundry.utils.mergeObject(CONFIG.Canvas.layers, {
-      combatNumbers: CombatNumberLayer,
-    });
-    Object.defineProperty(CONFIG.Canvas, 'layers', layers);
-    return;
-  }
-
-  // For 0.7.x.
-  const layers = mergeObject(Canvas.layers, {
-    combatNumbers: CombatNumberLayer,
-  });
-  Object.defineProperty(Canvas, 'layers', {
-    get: () => layers,
-  });
+  CONFIG.Canvas.layers.combatNumbers = {
+    layerClass: CombatNumberLayer,
+    group: 'effects',
+  };
 }
 
 /**
@@ -147,27 +95,12 @@ function findViewedScene() {
 Hooks.once('init', async () => {
   console.log('combat-numbers | Initializing combat-numbers');
 
-  // This is important for later layer retrieval and manipulation.
-  isUsingStaticLayers = !_.isNil(Canvas.layers);
-
   // Register custom module settings.
   registerSettings();
 
-  if (isUsingStaticLayers) {
-    registerStaticLayer();
-  }
+  registerStaticLayer();
 
   state = new State();
-});
-
-Hooks.on('canvasInit', (canvas) => {
-  // We only hook into this for non-static layer adding.
-  if (isUsingStaticLayers) {
-    return;
-  }
-
-  /* eslint-disable-next-line no-param-reassign */
-  canvas.combatNumbers = canvas.stage.addChildAt(new CombatNumberLayer(), 12);
 });
 
 /**
@@ -319,7 +252,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
     'show_controls',
   ));
 
-  const controlsGenerator = new ControlsGenerator(state, (isV8x() || isV9x()));
+    const controlsGenerator = new ControlsGenerator(state);
   controlsGenerator.generate(
     controls,
     game.user.isGM,
