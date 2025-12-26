@@ -138,17 +138,7 @@ function registerStaticLayer() {
  * @return {Scene|null}
  */
 function findViewedScene() {
-  let currentScene = null;
-
-  // Determine the current scene for emission later.
-  for (const value of game.scenes) {
-    if (value._view === true) {
-      currentScene = value;
-      break;
-    }
-  }
-
-  return currentScene;
+  return game.scenes.find((s) => s.isView);
 }
 
 /* ------------------------------------ */
@@ -190,10 +180,10 @@ Hooks.on('canvasReady', async () => {
     (targetLayer) => targetLayer instanceof CombatNumberLayer,
   );
 
-  const scene = findViewedScene();
+  const scene = canvas.scene;
   const appearance = new Appearance(
     game.settings.get(Constants.MODULE_NAME, 'appearance'),
-    scene.data.grid,
+    scene.grid,
   );
 
   masking = new Masking(state, game.settings);
@@ -246,8 +236,8 @@ Hooks.on('canvasReady', async () => {
   global.combatNumbers = new CombatNumbersApi(state);
 });
 
-Hooks.on('preUpdateActor', (entity, delta, audit) => {
-  if (!_.get(audit, 'diff')) {
+Hooks.on('preUpdateActor', (actor, delta, options) => {
+  if (!options.diff) {
     return;
   }
 
@@ -257,17 +247,17 @@ Hooks.on('preUpdateActor', (entity, delta, audit) => {
   }
 
   actorUpdateCoordinator.coordinatePreUpdate(
-    entity,
+    actor,
     delta,
-    entity.getActiveTokens(),
+    actor.getActiveTokens(),
     viewedScene,
   );
 });
 
-Hooks.on('preUpdateToken', (scene, entity, delta, audit) => {
+Hooks.on('preUpdateToken', (tokenDoc, delta, options) => {
   if (
-    !_.get(audit, 'diff')
-    || _.get(entity, 'hidden')
+    !options.diff
+    || tokenDoc.hidden
   ) {
     return;
   }
@@ -276,8 +266,8 @@ Hooks.on('preUpdateToken', (scene, entity, delta, audit) => {
   // it from the `game` object's relevant actor. This can take place if a token
   // has been dragged to the scene and has not been populated yet with all its
   // data in some systems. (For example, PF2E.)
-  if (tokenCalculator.shouldUseActorCoordination(entity)) {
-    const actorId = _.get(entity, 'actorId', null);
+  if (tokenCalculator.shouldUseActorCoordination(tokenDoc)) {
+    const actorId = tokenDoc.actorId;
     const actorData = _.get(delta, 'actorData', null);
 
     // If we don't even have the appropriate data to use, just exit. This
@@ -294,7 +284,7 @@ Hooks.on('preUpdateToken', (scene, entity, delta, audit) => {
       return;
     }
 
-    const viewedScene = findViewedScene();
+    const viewedScene = tokenDoc.scene;
     if (!viewedScene) {
       return;
     }
@@ -302,25 +292,25 @@ Hooks.on('preUpdateToken', (scene, entity, delta, audit) => {
     actorUpdateCoordinator.coordinatePreUpdate(
       origActor,
       actorData,
-      [entity],
+      [tokenDoc],
       viewedScene,
     );
 
     return;
   }
 
-  tokenUpdateCoordinator.coordinatePreUpdate(entity);
+  tokenUpdateCoordinator.coordinatePreUpdate(tokenDoc);
 });
 
-Hooks.on('updateToken', (scene, entity, delta, audit) => {
+Hooks.on('updateToken', (tokenDoc, delta, options) => {
   if (
-    !_.get(audit, 'diff')
-    || _.get(entity, 'hidden')
+    !options.diff
+    || tokenDoc.hidden
   ) {
     return;
   }
 
-  tokenUpdateCoordinator.coordinateUpdate(scene, delta);
+  tokenUpdateCoordinator.coordinateUpdate(tokenDoc, delta);
 });
 
 Hooks.on('getSceneControlButtons', (controls) => {

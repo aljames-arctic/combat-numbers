@@ -25,18 +25,18 @@ export default class TokenCalculator extends AbstractCalculator {
   }
 
   _getOrigEntityHpPath() {
-    return `actorData.${this.hpObjectPathFinder.getHpPath()}`;
+    return `actorData.system.${this.hpObjectPathFinder.getHpPath()}`;
   }
 
   _getOrigEntityHpTempPath() {
-    return `actorData.${this.hpObjectPathFinder.getHpTempPath()}`;
+    return `actorData.system.${this.hpObjectPathFinder.getHpTempPath()}`;
   }
 
   _getChangedEntityHpPath() {
-    return `actorData.${this.hpObjectPathFinder.getHpPath()}`;
+    return `actorData.system.${this.hpObjectPathFinder.getHpPath()}`;
   }
 
   _getChangedEntityHpTempPath() {
-    return `actorData.${this.hpObjectPathFinder.getHpTempPath()}`;
+    return `actorData.system.${this.hpObjectPathFinder.getHpTempPath()}`;
   }
 }

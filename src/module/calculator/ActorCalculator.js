@@ -5,18 +5,18 @@ import AbstractCalculator from './AbstractCalculator';
  */
 export default class ActorCalculator extends AbstractCalculator {
   _getOrigEntityHpPath() {
-    return `data.${this.hpObjectPathFinder.getHpPath()}`;
+    return `system.${this.hpObjectPathFinder.getHpPath()}`;
   }
 
   _getOrigEntityHpTempPath() {
-    return `data.${this.hpObjectPathFinder.getHpTempPath()}`;
+    return `system.${this.hpObjectPathFinder.getHpTempPath()}`;
   }
 
   _getChangedEntityHpPath() {
-    return this.hpObjectPathFinder.getHpPath();
+    return `system.${this.hpObjectPathFinder.getHpPath()}`;
   }
 
   _getChangedEntityHpTempPath() {
-    return this.hpObjectPathFinder.getHpTempPath();
+    return `system.${this.hpObjectPathFinder.getHpTempPath()}`;
   }
 }

@@ -20,13 +20,6 @@ export default class HpObjectPathFinder {
     this.settings = settings;
 
     /**
-     * The path prefix which is present in every Foundry object path.
-     *
-     * @type {string}
-     */
-    this.prefix = 'data';
-
-    /**
      * The default HP path within the Entity.
      *
      * @type {string}
@@ -89,7 +82,6 @@ export default class HpObjectPathFinder {
     }
 
     value = value.trim();
-    value = `${this.prefix}.${value}`;
 
     return value;
   }

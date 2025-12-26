@@ -129,7 +129,7 @@ export default class AbstractCalculator {
 
     // In order to "center" our numbers, we'll need to get the in-between
     // based on the grid size.
-    const gridSize = Number(scene.data.grid);
+    const gridSize = Number(scene.grid.size);
     const width = Number(token.width) * gridSize;
     const height = Number(token.height) * gridSize;
 

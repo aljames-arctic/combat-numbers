@@ -39,12 +39,12 @@ export default class TokenUpdateCoordinator {
    * @param {Object} delta
    *   The provided delta of the Token data.
    */
-  coordinateUpdate(scene, delta) {
+  coordinateUpdate(tokenDoc, delta) {
     let hpDiff;
-    const entityId = String(delta.id);
+    const entityId = tokenDoc.id;
 
     // Let's find the previously stored delta.
-    const entity = this.queuedUpdates.get(delta.id);
+    const entity = this.queuedUpdates.get(entityId);
 
     if (!entity) {
       // We may not have created an update queued previously, due to a
@@ -67,7 +67,7 @@ export default class TokenUpdateCoordinator {
       return;
     }
 
-    const coords = this.calculator.getCoordinates(scene, entity);
+    const coords = this.calculator.getCoordinates(tokenDoc.scene, entity);
 
     if (this.masking.shouldMaskToken(entity)) {
       const maskedType = (hpDiff < 0)
@@ -80,7 +80,7 @@ export default class TokenUpdateCoordinator {
         SocketController.emitTypes.TYPE_MASKED,
         coords.x,
         coords.y,
-        scene.id,
+        tokenDoc.scene.id,
       );
     } else {
       this.renderer.processNumericAndRender(hpDiff, coords.x, coords.y);
@@ -89,7 +89,7 @@ export default class TokenUpdateCoordinator {
         SocketController.emitTypes.TYPE_NUMERIC,
         coords.x,
         coords.y,
-        scene.id,
+        tokenDoc.scene.id,
       );
     }
 
